@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shop0001/providers/great_places.dart';
 import 'package:shop0001/screens/places_list_screen.dart';
 import 'firebase_options.dart';
 import 'package:shop0001/utils/app_routes.dart';
@@ -21,16 +23,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Great places',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo).copyWith(secondary: Colors.amber),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return ChangeNotifierProvider(
+      create: (ctx) => GreatPlaces(),
+      child: MaterialApp(
+        title: 'Great places',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo).copyWith(secondary: Colors.amber),
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: PlacesListScreen(),
+        routes: {
+          AppRoutes.PLACE_FORM: (ctx) => PlaceFormScreen(),
+        },
       ),
-      home: PlacesListScreen(),
-      routes: {
-        AppRoutes.PLACE_FORM: (ctx) => PlaceFormScreen(),
-      },
     );
   }
 }

@@ -1,13 +1,43 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart' as syspaths;
 
 class ImagesInput extends StatefulWidget {
-  const ImagesInput({super.key});
+  final Function(File) onSelectImage;
+
+  ImagesInput(this.onSelectImage);
 
   @override
   State<ImagesInput> createState() => _ImagesInputState();
 }
 
 class _ImagesInputState extends State<ImagesInput> {
+  File? _storedImage;
+
+  Future<void>_takePicture() async {
+    final picker = ImagePicker();
+    final XFile? imageFile = await picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 600,
+    );
+
+    if (imageFile == null) {
+      return;
+    }
+
+    setState(() {
+      _storedImage = File(imageFile.path);
+    });
+
+    final appDir = await syspaths.getApplicationDocumentsDirectory();
+    final fileName = path.basename(_storedImage!.path);
+    final savedImage = await _storedImage!.copy('${appDir.path}/$fileName');
+
+    widget.onSelectImage(savedImage);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -25,18 +55,27 @@ class _ImagesInputState extends State<ImagesInput> {
               color: Colors.grey,
             ),
           ),
-          child: const Center(
-            child: Text('No image!'),
-          ),
+          alignment: Alignment.center,
+          child: _storedImage != null
+              ? Image.file(
+                  _storedImage!,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                )
+              : Text(
+                  'No image!',
+                  textAlign: TextAlign.center,
+                ),
         ),
         SizedBox(width: 10),
         Expanded(
-          child: TextButton.icon(
-          onPressed: () {},
+            child: TextButton.icon(
           icon: Icon(Icons.camera),
           label: const Text('Take picture'),
+          onPressed: _takePicture,
           style: TextButton.styleFrom(
-            foregroundColor: Theme.of(context).primaryColor, textStyle: TextStyle(
+            foregroundColor: Theme.of(context).primaryColor,
+            textStyle: TextStyle(
               fontSize: 16,
               color: Theme.of(context).primaryColor,
             ),
