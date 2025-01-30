@@ -10,7 +10,12 @@ class PlacesListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My places'),
+        title: const Text(
+          'My places',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -31,22 +36,27 @@ class PlacesListScreen extends StatelessWidget {
                 child: Center(
                   child: const Text('No places yet!'),
                 ),
-                builder: (ctx, greatPlaces, child) =>
-                    greatPlaces.itemsCount == 0
-                        ? child!
-                        : ListView.builder(
-                            itemCount: greatPlaces.itemsCount,
-                            itemBuilder: (ctx, i) => ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage:
-                                    FileImage(greatPlaces.itemByIndex(i).image),
-                              ),
-                              title: Text(greatPlaces.itemByIndex(i).name),
-                              subtitle: Text(
-                                  greatPlaces.itemByIndex(i).location.address),
-                              onTap: () {},
-                            ),
+                builder: (ctx, greatPlaces, child) => greatPlaces.itemsCount ==
+                        0
+                    ? child!
+                    : ListView.builder(
+                        itemCount: greatPlaces.itemsCount,
+                        itemBuilder: (ctx, i) => ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage:
+                                FileImage(greatPlaces.itemByIndex(i).image),
                           ),
+                          title: Text(greatPlaces.itemByIndex(i).name),
+                          subtitle:
+                              Text(greatPlaces.itemByIndex(i).location.address),
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              AppRoutes.PLACE_DETAIL,
+                              arguments: greatPlaces.itemByIndex(i),
+                            );
+                          },
+                        ),
+                      ),
               ),
       ),
     );

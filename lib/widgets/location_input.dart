@@ -6,8 +6,9 @@ import 'package:shop0001/utils/location_util.dart';
 import 'package:shop0001/screens/map_screen.dart';
 
 
+
 class LocationInput extends StatefulWidget {
-  final Function (LatLng)onSelectPosition;
+  final Function (LatLng, String)onSelectPosition;
   LocationInput(this.onSelectPosition,{super.key});
 
   @override
@@ -26,9 +27,19 @@ class _LocationInputState extends State<LocationInput> {
           longitude: locData.longitude!,
         );
 
+        final address = await LocationUtil.getPlaceAddress(
+          locData.latitude!,
+          locData.longitude!,
+        );
+
         setState(() {
           _previewImageUrl = staticMapImageUrl;
         });
+
+        widget.onSelectPosition(
+          LatLng(locData.latitude!, locData.longitude!),
+          address,
+        );
       }
     } catch (error) {
       // Handle error
@@ -54,11 +65,16 @@ class _LocationInputState extends State<LocationInput> {
           longitude: selectedPosition.longitude,
         );
 
+        final address = await LocationUtil.getPlaceAddress(
+      selectedPosition.latitude,
+      selectedPosition.longitude,
+    );
+
         setState(() {
           _previewImageUrl = staticMapImageUrl;
         });
 
-    widget.onSelectPosition(selectedPosition);
+    widget.onSelectPosition(selectedPosition, address);
   }
 
   @override

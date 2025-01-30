@@ -12,9 +12,14 @@ class LocationUtil {
     return 'https://maps.googleapis.com/maps/api/staticmap?center=$latitude,$longitude&zoom=13&size=600x300&maptype=roadmap&markers=color:red%7Clabel:A%7C$latitude,$longitude&key=$GOOGLE_API_KEY';
   }
 
-  static Future<String> getPlaceAddress(LatLng position) async {
-     final url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$GOOGLE_API_KEY';
-      final response = await http.get(Uri.parse(url)); 
-      return json.decode(response.body)['results'][0]['formatted_address'];
-}
+  static Future<String> getPlaceAddress(double lat, double lng) async {
+    final url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$GOOGLE_API_KEY');
+    final response = await http.get(url);
+    final resData = json.decode(response.body);
+    if (resData['results'].isEmpty) {
+      return 'No address found';
+    }
+    return resData['results'][0]['formatted_address'];
+  }
 }
