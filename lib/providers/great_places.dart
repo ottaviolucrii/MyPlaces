@@ -3,8 +3,9 @@ import 'package:shop0001/models/place.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'dart:math';
-
 import 'package:shop0001/utils/db_util.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 
 class GreatPlaces with ChangeNotifier {
   List<Place> _items = [];
@@ -15,15 +16,37 @@ class GreatPlaces with ChangeNotifier {
     return _items.length;
   }
 
-  Place itemByIndex(int index){
+  Place itemByIndex(int index) {
     return _items[index];
   }
 
-  void addPlace(String name, File image){
+  Future<void> loadPlaces() async {
+    final dataList = await DbUtil.getData('user_places');
+    _items = dataList.map((item) {
+      return Place(
+        id: item['id'],
+        name: item['title'],
+        image: File(item['image']),
+        location: PlaceLocation(
+          latitude: item['latitude'],
+          longitude: item['longitude'],
+          address: item['address'],
+        ),
+      );
+    }).toList();
+    notifyListeners();
+  }
+
+  Future<void> addPlace(
+      String name, File image, LatLng position, String address) async {
     final newPlace = Place(
       name: name,
       image: image,
-      location: PlaceLocation(latitude: 0.0, longitude: 0.0, address: ''),
+      location: PlaceLocation(
+        latitude: position.latitude,
+        longitude: position.longitude,
+        address: address,
+      ),
       id: Random().nextDouble().toString(),
     );
 
@@ -32,6 +55,10 @@ class GreatPlaces with ChangeNotifier {
       'id': newPlace.id,
       'title': newPlace.name,
       'image': newPlace.image.path,
+      'latitude': position.latitude,
+      'longitude': position.longitude,
+      'address': address,
+      
     });
     notifyListeners();
   }
